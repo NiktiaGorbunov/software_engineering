@@ -2,16 +2,19 @@ import cv2
 import face_recognition
 from PIL import Image, ImageDraw
 import pickle
+import keyboard
+import asyncio
+
+from random import randint
+
 
 import training_models
 def create_user():
-    # name = input("Name user: -> ")
-    # password = input("Password:  -> ")
+    name = input("Name user: -> ")
 
-    #training_models.take_screenshot('nikita')
+    training_models.take_screenshot(name)
+    training_models.train_model_py_img(name)
 
-    #training_models.train_model_py_img('nikita')
-    pass
 
 def user_verification():
     data = pickle.loads(open('dataset/users_pickles/nikita_encodings.pickle','rb').read())
@@ -39,20 +42,35 @@ def user_verification():
             print("ACHTUNG")
 
 
+async def menu():
+    await asyncio.sleep(1)
+    print("1. Создать пользователя\n2. Удалить пользователя")
 
-def main():
+
+async def log_web():
+    while True:
+        return randint(1, 6)
+        await asyncio.sleep(3)
+
+async def main():
     #create_user()
 
-    while True:
-        answer = int(input("Есть сигнал? (1/0)"))
-        if answer == 1:
-            user_verification()
 
+    # while True:
+    #     # answer = int(input("Есть сигнал? (1/0)"))
+    #     # if answer == 1:
+    #     #     user_verification()
 
+    task1 = asyncio.create_task(log_web())
+    #task2 = asyncio.create_task(menu())
+
+    await task1
+
+    #await task2
 
 
 
 
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
