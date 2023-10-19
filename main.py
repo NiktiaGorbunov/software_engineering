@@ -1,16 +1,58 @@
-# This is a sample Python script.
+import cv2
+import face_recognition
+from PIL import Image, ImageDraw
+import pickle
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import training_models
+def create_user():
+    # name = input("Name user: -> ")
+    # password = input("Password:  -> ")
+
+    #training_models.take_screenshot('nikita')
+
+    #training_models.train_model_py_img('nikita')
+    pass
+
+def user_verification():
+    data = pickle.loads(open('dataset/users_pickles/nikita_encodings.pickle','rb').read())
+    cap = cv2.VideoCapture(0)
+
+    # "Прогреваем" камеру, чтобы снимок не был тёмным
+    for i in range(30):
+        cap.read()
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+    ret, image = cap.read()# Делаем снимок
+    cap.release() #отключаем камеру
+
+    locations = face_recognition.face_locations(image)
+    encodings = face_recognition.face_encodings(image, locations)
+
+    for face_encoding, face_location in zip(encodings, locations):
+        result = face_recognition.compare_faces(data["encodings"], face_encoding)
+        match = None
+
+        if True in result:
+            match = data['name']
+            print(f"Match found! {match}")
+        else:
+            print("ACHTUNG")
 
 
-# Press the green button in the gutter to run the script.
+
+def main():
+    #create_user()
+
+    while True:
+        answer = int(input("Есть сигнал? (1/0)"))
+        if answer == 1:
+            user_verification()
+
+
+
+
+
+
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    main()
