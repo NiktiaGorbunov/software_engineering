@@ -1,0 +1,4 @@
+modules/recognition/__pycache__/
+dataset/users_pickles/
+__pycache__/recognition_functions.cpython-310.pyc
+__pycache__/training_models.cpython-310.pyc

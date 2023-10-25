@@ -1,59 +1,43 @@
-import cv2
-import face_recognition
-from PIL import Image, ImageDraw
-import pickle
-import keyboard
-import asyncio
+import tkinter as tk
+from tkinter.messagebox import showerror, showinfo, showwarning
+from tkinter import filedialog
+from modules.recognition.recognition_functions import create_user, user_verification
 
-from random import randint
+def add_user_command():
+    try:
+        username = txt.get()
+        if username == None or len(username) == 0:
+            showerror("Ошибка", "Введите имя пользователя")
+        create_user(username)
+        showinfo("Информация", "Пользователь успшено добавлен")
+    except Exception as ex:
+        showerror("Ошибка", str(ex))
 
+def user_verification_command():
+    try:
+        result = user_verification()
 
-import training_models
-def create_user():
-    name = input("Name user: -> ")
-
-    training_models.take_screenshot(name)
-    training_models.train_model_py_img(name)
-
-
-def user_verification():
-    data = pickle.loads(open('dataset/users_pickles/nikita_encodings.pickle','rb').read())
-    cap = cv2.VideoCapture(0)
-
-    # "Прогреваем" камеру, чтобы снимок не был тёмным
-    for i in range(30):
-        cap.read()
-
-
-    ret, image = cap.read()# Делаем снимок
-    cap.release() #отключаем камеру
-
-    locations = face_recognition.face_locations(image)
-    encodings = face_recognition.face_encodings(image, locations)
-
-    for face_encoding, face_location in zip(encodings, locations):
-        result = face_recognition.compare_faces(data["encodings"], face_encoding)
-        match = None
-
-        if True in result:
-            match = data['name']
-            print(f"Match found! {match}")
+        if result[0]:
+            showinfo("Информация", f"Привет, {result[1]}!")
         else:
-            print("ACHTUNG")
+            showerror("Ошибка", "ACHTUNG: Неизвестный пользователь")
+    except Exception as ex:
+        showerror("Ошибка", str(ex))
 
+main_window = tk.Tk()
+main_window.title = "Face Recognition"
+main_window.geometry('350x300')
 
-async def menu():
-    await asyncio.sleep(1)
-    print("1. Создать пользователя\n2. Удалить пользователя")
+for c in range(2): main_window.columnconfigure(index=c, weight=1)
+for r in range(2): main_window.rowconfigure(index=r, weight=1)
 
-async def main():
-    create_user()
+btn1 = tk.Button(text="Проверить пользователя", command=user_verification_command)
+btn1.grid(row=0, column=0, columnspan=2, ipadx=70, ipady=6, padx=5, pady=5)
 
-    while True:
-        answer = int(input("Есть сигнал? (1/0)"))
-        if answer == 1:
-            user_verification()
+btn3 = tk.Button(text="Добавить пользователя", command=add_user_command)
+btn3.grid(row=1, column=0, columnspan=1, ipadx=70, ipady=6, padx=5, pady=5)
 
+txt = tk.Entry()
+txt.grid(row = 1, column=1, columnspan=2, ipadx=70, ipady=6, padx=5, pady=5)
 
-if __name__ == '__main__':
-    asyncio.run(main())
+main_window.mainloop()
